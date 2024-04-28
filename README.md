@@ -3,6 +3,7 @@
 This project aims to automatize an experiment: free falling paper trajectory analysis.
 
 Supervisor : Nana Obayashi
+
 Student : Naël Dillenbourg
 
 ## Goal
