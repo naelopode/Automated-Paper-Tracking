@@ -1,7 +1,9 @@
 
 # Automated Paper Tracking
-
 This project aims to automatize an experiment: free falling paper trajectory analysis.
+
+Supervisor : Nana Obayashi
+Student : Naël Dillenbourg
 
 ## Goal
 Track accurately 6 Degrees of freedom of a falling paper and be able to reproduce the experiment hundreds of times to find global patterns. Attempt to extract meaningful data from the experiments.
