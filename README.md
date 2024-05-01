@@ -29,6 +29,7 @@ The experiment program controlling the Arduino and camera can the be enabled. Th
 
 ## Processing pipeline
 We extract each frame from the videos, compute the offset between each video with milliseconds precision using the metadata. We then compute the position of each tags (reference tag and falling tag), evaluate the reference position for each camera. We then export the relative position and plot the 6 degrees of freedom.
+![Analysis pipeline](images/analyis_pipeline.png)
 
 
 # Tools used
