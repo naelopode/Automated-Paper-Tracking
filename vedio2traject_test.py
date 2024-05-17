@@ -45,16 +45,54 @@ def getAprilTagsInfo(images_folder, camera_matrix, tag_size, debug_dir=None):
         img_name = os.path.basename(image)
         # Initialize as empty list
         tag_info_dict[img_name] = []
-
         img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
+        """  OLD METHOD
         camera_params = (
             camera_matrix[0, 0], camera_matrix[1, 1], camera_matrix[0, 2], camera_matrix[1, 2])
         tags = at_detector.detect(
             img, estimate_tag_pose=True, camera_params=camera_params, tag_size=tag_size)
-        tag_info_dict[img_name] = tags
-        print('--------------------new detect ---------------------')
-        print(tags)
-        if len(tags) > 0:
+        tag_info_dict[img_name] = tags        
+        """
+        dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
+
+        # Detect AprilTags without pose estimation
+        tags = at_detector.detect(img)
+
+        # Define the 3D points of the tag's corners in the object coordinate system
+        half_size = tag_size / 2
+        object_points = np.array([
+            [-half_size, -half_size, 0],
+            [ half_size, -half_size, 0],
+            [ half_size,  half_size, 0],
+            [-half_size,  half_size, 0]
+        ], dtype=np.float32)
+
+        # Initialize dictionary to store pose information
+        #tag_info_dict = {}
+        tags_list = []
+        # Estimate pose for each detected tag
+        for tag in tags:
+            tag_tmp = {}
+            img_points = np.array([
+                [tag.corners[0][0], tag.corners[0][1]],
+                [tag.corners[1][0], tag.corners[1][1]],
+                [tag.corners[2][0], tag.corners[2][1]],
+                [tag.corners[3][0], tag.corners[3][1]]
+            ], dtype=np.float32)
+            
+            # Estimate the pose using solvePnP
+            success, rvec, tvec = cv2.solvePnP(object_points, img_points, camera_matrix, dist_coeffs, flags=cv2.SOLVEPNP_IPPE_SQUARE)
+            if success:
+                tag_tmp = {
+                    'pose_R': cv2.Rodrigues(rvec)[0],
+                    'pose_t': tvec,
+                    'corners': tag.corners,
+                    'tag_id': tag.tag_id,
+                    'center': tag.center
+                }
+            tags_list.append(tag_tmp)
+        tag_info_dict[img_name] = tags_list
+        if len(tags_list) > 0:
             success_dectection += 1
 
         if debug_dir is not None:
@@ -126,7 +164,7 @@ def visualize_df(df, figpath):
 
 def dump2txt(tag_info_dict, filename, figpath=None):
     df = pd.DataFrame(index=list(tag_info_dict.keys()), columns=[
-                      'x', 'y', 'z', 'alpha', 'beta', 'gamma'])
+                      'x', 'y', 'z', 'alpha', 'beta', 'gamma', 'center_x', 'center_y'])
     print('calling dump2txt')
     nb_ref_tag = 0
     nb_tag1 = 0
@@ -138,23 +176,33 @@ def dump2txt(tag_info_dict, filename, figpath=None):
         goal_R = 0
         goal_t = 0
         state = 0
+        center_x = None
+        center_y = None
+        ref_center_x = None
+        ref_center_y = None
         return_tag = 0
         ref_taken=False
         for tag in tags:
-            if tag.tag_id == 0:
-                ref_R = tag.pose_R
-                ref_t = tag.pose_t
+            if tag['tag_id'] == 0:
+                ref_R = tag['pose_R']
+                ref_t = tag['pose_t']
                 nb_ref_tag +=1
+                ref_center_x = tag['center'][0]
+                ref_center_y = tag['center'][1]
                 ref_taken = True
-            if tag.tag_id == 1:
-                goal_R = tag.pose_R
-                goal_t = tag.pose_t 
+            if tag['tag_id'] == 1:
+                goal_R = tag['pose_R']
+                goal_t = tag['pose_t'] 
+                center_x = tag['center'][0]
+                center_y = tag['center'][1]
                 state = 1
                 return_tag = 0
                 nb_tag1 +=1
-            if tag.tag_id == 2:
-                goal_R = tag.pose_R
-                goal_t = tag.pose_t 
+            if tag['tag_id'] == 2:
+                goal_R = tag['pose_R']
+                goal_t = tag['pose_t']
+                center_x = tag['center'][0]
+                center_y = tag['center'][1]
                 state = 1
                 return_tag = 1
                 nb_tag2 +=1
@@ -182,7 +230,8 @@ def dump2txt(tag_info_dict, filename, figpath=None):
                 df.loc[f, 'alpha'] = angle[0]
                 df.loc[f, 'beta'] = angle[1]
                 df.loc[f, 'gamma'] = angle[2]
-
+                df.loc[f, 'center_x'] = center_x-ref_center_x
+                df.loc[f, 'center_y'] = center_y-ref_center_y
     df.to_csv(filename, header=False, index=True, mode='w')
 
     print(f"Detected {nb_ref_tag} times the reference tag")
@@ -197,13 +246,10 @@ def visualize_xyz_df(df, ax, color):
     x = df['x'].to_numpy()
     y = df['y'].to_numpy()
     z = df['z'].to_numpy()
-    
     ax.set_title('3D Representation')
-    ax.scatter3D(x[0],y[0],z[0], marker = 'o', color = color)
+    #ax.scatter3D(x[0],y[0],z[0], marker = 'o', color = color)
     for i in range(x.shape[0]):
         try:
-            if x[i]<-0.2:
-                print(f"check image {i} {color}")
             ax.scatter3D(x[i],y[i],z[i], marker = "x", color = color)
         except:
             pass
@@ -218,7 +264,7 @@ def visualize_angles_df(df, axes, color):
     alpha = df['alpha'].to_numpy()
     beta = df['beta'].to_numpy()
     gamma = df['gamma'].to_numpy()
-    print(f"gamma max min : {np.max(gamma)}, {np.min(gamma)}")
+    #print(f"gamma max min : {np.max(gamma)}, {np.min(gamma)}")
     gamma_max = 0
     gamma_min = 0
     for i in range(alpha.shape[0]):
@@ -263,4 +309,23 @@ def visualize_xyz2_df(df, axes, color):
     axes[2].set_xlabel('Step')
     axes[2].set_ylabel('z')
     #axes[2].set_autoscale_on()
+    return axes
+
+def visualize_center_df(df, axes, color):
+    center_x = df['center_x'].to_numpy()
+    center_y = df['center_y'].to_numpy()
+    gamma_max = 0
+    gamma_min = 0
+    for i in range(center_x.shape[0]):
+        try:
+            axes[0].scatter(i, center_x[i], marker = "x", color = color)
+            axes[1].scatter(i, center_y[i], marker = "x", color = color)
+        except:
+            pass
+    axes[0].set_xlabel('Step')
+    axes[0].set_ylabel('X')
+    axes[1].set_xlabel('Step')
+    axes[1].set_ylabel('Y')
+    #print(f'gamma_min : {gamma_min}, gamma_ma : {gamma_max}')
+    
     return axes

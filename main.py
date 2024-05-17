@@ -2,7 +2,7 @@ import os
 import numpy as np
 import glob
 import pickle
-from vedio2traject import *
+from vedio2traject_test import *
 from preprocessing import *
 
 
@@ -13,9 +13,10 @@ def getConfig():
         'loadInfoDictFromPickle': False,    ## dump frames2taginfo
         'dumpInfoDictPickle': False,        ## load frames2taginfo
         'dumpTxt': True,                    ## dump (x, y, theta)
-        'dumpVisualization': True,          ## Draw the trajectory
-        'skip' : True,                     ## Skip video to frames
-        'log' : True                        ## Activate logs
+        'dumpVisualization': False,          ## Draw the trajectory
+        'skip' : True,                      ## Skip video to frames
+        'log' : True,                       ## Activate logs
+        'debug_dir': '/mnt/2To/jupyter_data/PdS_LC/program/automated-paper-tracking/debug'
     }
     return config
 
@@ -39,8 +40,10 @@ if __name__ == "__main__":
     output_dir = './outputs/'
 
     dirs = [tmp_outdir, input_dir, output_dir]
-    if not os.path.exists(dirs):
-        os.makedirs(dirs)
+    for dir in dirs:
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+    
 
     ## Grab all in input folder
     # Get the list of files in the folder
@@ -85,7 +88,7 @@ if __name__ == "__main__":
         outdir = os.path.join(tmp_outdir, v_basename)
         print(f'outdir is {outdir}')
         if config['newDetect']:
-            [tag_info_dict, msg] = getAprilTagsInfo(outdir, video_CM, tag_size)
+            [tag_info_dict, msg] = getAprilTagsInfo(outdir, video_CM, tag_size, config['debug_dir'])
             print(msg)
         print('done with detecting')
 
@@ -106,6 +109,7 @@ if __name__ == "__main__":
     ax = plt.axes(projection='3d')
     f, axes1 = plt.subplots(3, 1, figsize = (15, 7))
     f2, axes2 = plt.subplots(3, 1, figsize = (15, 7))
+    f3, axes3 = plt.subplots(2, 1, figsize = (15, 7))
 
     missing = []
 
@@ -114,11 +118,14 @@ if __name__ == "__main__":
     print(f"File for post-treatment are {files}") if log else None
 
     for csv, color, offset in zip(files, ['r', 'g', 'b'], offsets):
-        df = pd.read_csv(csv, names =['filename','x', 'y', 'z', 'alpha', 'beta', 'gamma'], na_values = missing)
+        df = pd.read_csv(csv, names =['filename','x', 'y', 'z', 'alpha', 'beta', 'gamma', 'center_x', 'center_y'], na_values = missing)
         ax = visualize_xyz_df(df[offset:], ax, color)
         axes1 = visualize_xyz2_df(df[offset:], axes1, color)
         axes2 = visualize_angles_df(df[offset:], axes2, color)
-
+        axes3 = visualize_center_df(df[offset:], axes3, color)
+        df[offset:].to_csv(csv.split('.txt')[0]+'_synced.txt', header=False, index=True, mode='w')
     fig.savefig(os.path.join(output_dir,'globalplots_3D.png'))
     f.savefig(os.path.join(output_dir,'globalplots_coord.png'))
     f2.savefig(os.path.join(output_dir,'globalplots_angles.png'))
+    f3.savefig(os.path.join(output_dir,'globalplots_2D.png'))
+    
