@@ -31,7 +31,44 @@ The experiment program controlling the Arduino and camera can the be enabled. Th
 We extract each frame from the videos, compute the offset between each video with milliseconds precision using the metadata. We then compute the position of each tags (reference tag and falling tag), evaluate the reference position for each camera. We then export the relative position and plot the 6 degrees of freedom.
 ![Analysis pipeline](images/analysis_pipeline.png)
 
-
+## Documentation
+### Provided files
+<pre>
+.
+└── automated-paper-tracking/
+    ├── main.py 
+    ├── plot.py
+    ├── experiment.py
+    ├── README.md
+    ├── video2traj.py
+    ├── preprocessing.py
+    ├── videos/
+    │   └── vid001/
+    │       ├── vid001_cam1.MP4
+    │       ├── vid001_cam2.MP4
+    │       └── vid001_cam3.MP4
+    ├── trajectories/
+    │   └── vid001/
+    │       ├── vid001_cam1.txt
+    │       ├── vid001_cam2.txt
+    │       └── vid001_cam3.txt
+    ├── working_dir/
+    │   ├── vid001_cam1/
+    │   │   ├── frame_00000.jpg
+    │   │   ├── frame_00001.jpg
+    │   │   └── ...
+    │   └── ...
+    ├── calibration/
+    │   ├── calibrate.py
+    │   ├── cam1_26K.pkl
+    │   ├── cam2_26K.pkl
+    │   └── cam3_26K.pkl
+    └── misc/
+        └── gif.py
+</pre>
+### Steps
+    1. Calibrate each cameras using provided checkboard.
+        a. Record a video of the camera moving 
 # Tools used
 - [GoPro Precision Date and Time QR for Lab enabled cameras, used for calibration](https://gopro.github.io/labs/control/precisiontime/)
 - [Apriltag for video, some code reused and used for calibration](https://github.com/yanshil/video-apriltags)
