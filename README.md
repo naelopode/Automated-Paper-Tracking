@@ -37,7 +37,7 @@ We extract each frame from the videos, compute the offset between each video wit
 .
 └── automated-paper-tracking/
     ├── main.py 
-    ├── plot.py
+    ├── plot.ipynb
     ├── experiment.py
     ├── README.md
     ├── video2traj.py
