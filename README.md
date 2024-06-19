@@ -68,16 +68,16 @@ We extract each frame from the videos, compute the offset between each video wit
 </pre>
 
 ### Steps
-    1. Calibrate each cameras using provided checkboard.
-        a. Record videos of the [checkboad](/misc/camera-calibration-checker-board_9x7.pdf) with various angles and from various distances with each camera you are going to use.
-        b. Generate the deformation matrices using calibration.ipynb. This generates the necessary pickle files and should be done for every calibration recorded at point a.
-    2. Setup the experiment.
-        a. Build the experiment using as many cameras as you want, a servo motor to drop the paper. Be sure to film as much of the falling paper trajectory but leave some redundancy in the trajectory region filmed.
-        b. Sync the camera using [GoPro Labs](https://gopro.github.io/labs/control/precisiontime/). GoPros need to be lab enabled.
-        b. Run the experiment. Place a paper in the gripper and run the code experiment.py. The files will be automatically downloaded and renamed locally afterwards.
-    3. Run the data analysis pipeline.
-        a. Run "python main.py video_id" where video_id replace the name of the video such as vid001
-        b. Visualize the data using plot.ipynb
+1. Calibrate each cameras using provided checkboard.
+    a. Record videos of the [checkboad](/misc/camera-calibration-checker-board_9x7.pdf) with various angles and from various distances with each camera you are going to use.
+    b. Generate the deformation matrices using calibration.ipynb. This generates the necessary pickle files and should be done for every calibration recorded at point a.
+2. Setup the experiment.
+    a. Build the experiment using as many cameras as you want, a servo motor to drop the paper. Be sure to film as much of the falling paper trajectory but leave some redundancy in the trajectory region filmed.
+    b. Sync the camera using [GoPro Labs](https://gopro.github.io/labs/control/precisiontime/). GoPros need to be lab enabled.
+    b. Run the experiment. Place a paper in the gripper and run the code experiment.py. The files will be automatically downloaded and renamed locally afterwards.
+3. Run the data analysis pipeline.
+    a. Run "python main.py video_id" where video_id replace the name of the video such as vid001
+    b. Visualize the data using plot.ipynb
 # Tools used
 - [GoPro Precision Date and Time QR for Lab enabled cameras, used for calibration](https://gopro.github.io/labs/control/precisiontime/)
 - [Apriltag for video, some code reused and used for calibration](https://github.com/yanshil/video-apriltags)
