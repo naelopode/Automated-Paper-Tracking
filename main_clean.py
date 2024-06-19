@@ -15,10 +15,10 @@ def getConfig():
         'loadInfoDictFromPickle': False,    ## dump frames2taginfo
         'dumpInfoDictPickle': False,        ## load frames2taginfo
         'dumpTxt': True,                    ## dump (x, y, theta)
-        'dumpVisualization': False,         ## Draw the trajectory
-        'skip' : True,                     ## Skip video to frames
+        'dumpVisualization': True,         ## Draw the trajectory
+        'skip' : False,                     ## Skip video to frames
         'log' : True,                       ## Activate logs
-        'debug': False,                      ## Export all frames with tag position
+        'debug': True,                      ## Export all frames with tag position
     }
     return config
 
@@ -47,7 +47,7 @@ def extract_data(video_folder):
         calib_param_cam3 = pickle.load(f)
 
     tag_size = 0.034
-    video = 'vid172'
+    video = video_folder
     input_dir = '/mnt/2To/jupyter_data/PdS_LC/program/all_vids/'+video+'/'
     tmp_outdir = './working_dir/'
     output_dir = input_dir.replace('all_vids', 'all_results')
@@ -77,6 +77,7 @@ def extract_data(video_folder):
     print(f"Files to be treated are {file_paths}") if config['log'] else None
 
     # Extracting frames:
+    print(f"dir is {file_path}")
     offsets = dump_to_frames(file_paths, skip=config['skip'], log = config['log'])
 
     for v in file_paths:
@@ -131,4 +132,5 @@ def extract_data(video_folder):
 
 if __name__ == "__main__":    
     video_folder = sys.argv[1]
+    print(f"VIDEO FOLDER IS {video_folder}")
     extract_data(video_folder)

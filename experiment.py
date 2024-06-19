@@ -6,18 +6,23 @@ from time import sleep
 import os 
 
     
+
 retry = True
-ARDUINO_PORT = '/dev/ttyACM1'
+test = False
+ARDUINO_PORT = '/dev/ttyACM0'
 
 cam1 = '172.20.133.51'
 cam2 = '172.20.137.51'
 cam3 = '172.26.141.51'
 cams = [cam1, cam2, cam3]
 
+ANGLE_REST = 50
+ANGLE_GRAB = 190
 
 
 def move_servo(angle):
     pin9.write(angle)
+
     
 def drop():
     global pin9
@@ -26,10 +31,27 @@ def drop():
     #iter8.start()
     pin9 = board.get_pin('d:9:s')
 
-    for i in range(170, 50, -1):
+    for i in range(ANGLE_GRAB, ANGLE_REST, -1):
         print(f'angle {i}')
         move_servo(i)
         sleep(0.0015)
+
+def move_range():
+    global pin9
+    board=pyfirmata.Arduino(ARDUINO_PORT)
+    #iter8 = pyfirmata.util.Iterator(board)
+    #iter8.start()
+    pin9 = board.get_pin('d:9:s')
+
+
+    for i in range(10, 170):
+        print(f"angle {i}")
+        move_servo(i)
+        sleep(0.01)
+    for i in range(170, 10, -1):
+        print(f'angle {i}')
+        move_servo(i)
+        sleep(0.01)
 
 def grab():
     global pin9
@@ -39,7 +61,7 @@ def grab():
     pin9 = board.get_pin('d:9:s')
 
 
-    for i in range(50, 170):
+    for i in range(ANGLE_REST, ANGLE_GRAB):
         print(f"angle {i}")
         move_servo(i)
         sleep(0.0015)
@@ -154,7 +176,7 @@ def record_download(cams, X):
     sleep(1)
     cams_start_recording(cams)
     drop()
-    sleep(2)
+    sleep(3)
     cams_stop_recording(cams)
     sleep(1)
     files = get_files(cams)
@@ -174,6 +196,15 @@ def set_time(cams):
 
 cams_disable(cams)
 
+if test:
+    move_range()
+    move_range()
+    move_range()
+    sleep(1)
+    grab()
+    sleep(1)
+    drop()
+    exit()
 if retry:
     X = 100
     path = f'/home/nael/recordings/vid{X}'
@@ -198,3 +229,4 @@ else:
     grab()
     sleep(1)
     record_download(cams, X)
+
