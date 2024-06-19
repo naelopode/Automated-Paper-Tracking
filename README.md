@@ -21,7 +21,7 @@ The experiment make use of:
 ### More information on the Setup
 - The cameras record at 2.7K, 250fps, allowing our algorithm to detect a small tag and to capture a good amount of data points.
 - Each cameras needs to have it's deformation matrix calculated with a Checkerboard.
-
+- We use a 3.4cm tags from AprilTags, this can be modified by using the hardcoded variable: 'tag_size'
 ## Experiment pipeline
 About every 5 to 10 experiment, it's advised to sync the internal clock to avoid any offset between the cameras.
 The experiment program controlling the Arduino and camera can the be enabled. The grabber allows some time to be reloaded with a paper. The cameras are the enabled and start recording. The paper is dropped. Finally, the cameras stop recording and the files are downloaded 
@@ -76,8 +76,23 @@ We extract each frame from the videos, compute the offset between each video wit
     b. Sync the camera using [GoPro Labs](https://gopro.github.io/labs/control/precisiontime/). GoPros need to be lab enabled.
     b. Run the experiment. Place a paper in the gripper and run the code experiment.py. The files will be automatically downloaded and renamed locally afterwards.
 3. Run the data analysis pipeline.
-    a. Run "python main.py video_id" where video_id replace the name of the video such as vid001
+    a. Run "python main.py video_id" where video_id replace the name of the video such as 'vid001'
     b. Visualize the data using plot.ipynb
+
+## Exemple
+![](images/plot220.gif)
+
+## Tags
+We created QR codes with shapes (square, circle, hexagone, cross).
+![](images/type_of_papers.png)
+- [Square paper](misc/square_tag.pdf)
+- [Circle paper](misc/circle_tag.pdf)
+- [Hexagone paper](misc/hexagone_tag.pdf)
+- [Cross paper](misc/cross_tag.pdf)
+
+Additionally, we provide the [refrence tag](misc/reference_tag.pdf).
+
 # Tools used
 - [GoPro Precision Date and Time QR for Lab enabled cameras, used for calibration](https://gopro.github.io/labs/control/precisiontime/)
 - [Apriltag for video, some code reused and used for calibration](https://github.com/yanshil/video-apriltags)
+- [Checkerboard for Camera Calibration is from Mobile Robot Programming Toolkit](https://docs.mrpt.org/reference/latest/)
