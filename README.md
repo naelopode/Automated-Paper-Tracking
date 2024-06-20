@@ -12,8 +12,8 @@ Track accurately 6 Degrees of freedom of a falling paper and be able to reproduc
 ## Setup
 The experiment make use of:
 - An Arduino to command a stepper motor to drop and grab a paper.
-- A paper (with two different april tags to track the trajectory).
-- A reference tag, to compute a relative distance.
+- A [paper](misc) (with two different april tags to track the trajectory).
+- A [reference tag](misc/reference_tag.pdf), to compute a relative distance.
 - 3 GoPro Cameras (More is better but more computation per experiment).
 - A screen (phone or computer) using QR precision time to sync internal clocks of the cameras.
 
@@ -43,6 +43,7 @@ We extract each frame from the videos, compute the offset between each video wit
     ├── README.md
     ├── video2traj.py
     ├── preprocessing.py
+    ├── environment.yml
     ├── videos/
     │   └── vid001/
     │       ├── vid001_cam1.MP4
@@ -70,6 +71,7 @@ We extract each frame from the videos, compute the offset between each video wit
 
 Folders videos, trajectories and working_dir should be user generated.
 
+You can install the necessary conda environment by using 'conda env create -f environment.yml'
 ### Steps
 1. Calibrate each cameras using provided checkboard.
     1. Record videos of the [checkboad](/misc/camera-calibration-checker-board_9x7.pdf) with various angles and from various distances with each camera you are going to use.
