@@ -36,10 +36,10 @@ We extract each frame from the videos, compute the offset between each video wit
 <pre>
 .
 └── automated-paper-tracking/
-    ├── report.pdf
-    ├── main.py 
-    ├── plot.ipynb
-    ├── experiment.py
+    ├── [report.pdf](/report.pdf)
+    ├── [main.py](/main.pd) 
+    ├── [plot.ipynb](/plot.pdf)
+    ├── [experiment.py](/experiment.py)
     ├── README.md
     ├── video2traj.py
     ├── preprocessing.py
@@ -61,13 +61,13 @@ We extract each frame from the videos, compute the offset between each video wit
     │   │   └── ...
     │   └── ...
     ├── calibration/
-    │   ├── calibration.ipynb
+    │   ├── [calibration.ipynb](calibration/calibration.ipynb)
     │   ├── cam1_26K.pkl
     │   ├── cam2_26K.pkl
     │   └── cam3_26K.pkl
     └── misc/
-        ├── PDFs (Checkboard, Apriltags...)
-        └── gif.py
+        ├── [PDFs (Checkboard, Apriltags...)](/misc)
+        └── [gif.py](misc/gif.py)
 </pre>
 
 Folders videos, trajectories and working_dir should be user generated.
