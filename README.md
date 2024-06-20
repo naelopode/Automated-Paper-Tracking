@@ -36,6 +36,7 @@ We extract each frame from the videos, compute the offset between each video wit
 <pre>
 .
 └── automated-paper-tracking/
+    ├── report.pdf
     ├── main.py 
     ├── plot.ipynb
     ├── experiment.py
@@ -67,20 +68,24 @@ We extract each frame from the videos, compute the offset between each video wit
         └── gif.py
 </pre>
 
+Folders videos, trajectories and working_dir should be user generated.
+
 ### Steps
 1. Calibrate each cameras using provided checkboard.
-    a. Record videos of the [checkboad](/misc/camera-calibration-checker-board_9x7.pdf) with various angles and from various distances with each camera you are going to use.
-    b. Generate the deformation matrices using calibration.ipynb. This generates the necessary pickle files and should be done for every calibration recorded at point a.
+    1. Record videos of the [checkboad](/misc/camera-calibration-checker-board_9x7.pdf) with various angles and from various distances with each camera you are going to use.
+    2. Generate the deformation matrices using calibration.ipynb. This generates the necessary pickle files and should be done for every calibration recorded at point a.
 2. Setup the experiment.
-    a. Build the experiment using as many cameras as you want, a servo motor to drop the paper. Be sure to film as much of the falling paper trajectory but leave some redundancy in the trajectory region filmed.
-    b. Sync the camera using [GoPro Labs](https://gopro.github.io/labs/control/precisiontime/). GoPros need to be lab enabled.
-    b. Run the experiment. Place a paper in the gripper and run the code experiment.py. The files will be automatically downloaded and renamed locally afterwards.
+    1. Build the experiment using as many cameras as you want, a servo motor to drop the paper. Be sure to film as much of the falling paper trajectory but leave some redundancy in the trajectory region filmed.
+    2. Sync the camera using [GoPro Labs](https://gopro.github.io/labs/control/precisiontime/). GoPros need to be lab enabled.
+    3. Run the experiment. Place a paper in the gripper and run the code experiment.py. The files will be automatically downloaded and renamed locally afterwards.
 3. Run the data analysis pipeline.
-    a. Run "python main.py video_id" where video_id replace the name of the video such as 'vid001'
-    b. Visualize the data using plot.ipynb
+    1. Run "python main.py video_id" where video_id replace the name of the video such as 'vid001'
+    2. Visualize the data using plot.ipynb
 
-## Exemple
-![](images/plot220.gif)
+## Example
+Fall of a square paper
+![](images/animated_square_paper.gif)
+All plots available on the reported are available in an animated format in the folder [images](images)
 
 ## Tags
 We created QR codes with shapes (square, circle, hexagone, cross).
@@ -90,7 +95,8 @@ We created QR codes with shapes (square, circle, hexagone, cross).
 - [Hexagone paper](misc/hexagone_tag.pdf)
 - [Cross paper](misc/cross_tag.pdf)
 
-Additionally, we provide the [refrence tag](misc/reference_tag.pdf).
+Additionally, we provide the [reference tag](misc/reference_tag.pdf).
+We used a paper with a 160g/m3 grammage to avoided paper deformation as explained in the report.
 
 # Tools used
 - [GoPro Precision Date and Time QR for Lab enabled cameras, used for calibration](https://gopro.github.io/labs/control/precisiontime/)
