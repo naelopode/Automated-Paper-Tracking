@@ -61,11 +61,12 @@ We extract each frame from the videos, compute the offset between each video wit
     │   │   └── ...
     │   └── ...
     ├── calibration/
-    │   ├── calibrate.py
+    │   ├── calibration.ipynb
     │   ├── cam1_26K.pkl
     │   ├── cam2_26K.pkl
     │   └── cam3_26K.pkl
     └── misc/
+        ├── PDFs (Checkboard, Apriltags...)
         └── gif.py
 </pre>
 

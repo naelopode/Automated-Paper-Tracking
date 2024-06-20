@@ -46,20 +46,20 @@ def convert_string_to_list(value):
 
 def extract_data(video_folder):
     config = getConfig()
-    with open('/mnt/2To/jupyter_data/PdS_LC/program/automated-paper-tracking/cam1_26K.pkl', 'rb') as f:
+    with open('./calibration/cam1_26K.pkl', 'rb') as f:
         calib_param_cam1 = pickle.load(f)
-    with open('/mnt/2To/jupyter_data/PdS_LC/program/automated-paper-tracking/cam2_26K.pkl', 'rb') as f:
+    with open('./calibration/cam2_26K.pkl', 'rb') as f:
         calib_param_cam2 = pickle.load(f)
-    with open('/mnt/2To/jupyter_data/PdS_LC/program/automated-paper-tracking/cam3_26K.pkl', 'rb') as f:
+    with open('./calibration/cam3_26K.pkl', 'rb') as f:
         calib_param_cam3 = pickle.load(f)
 
     tag_size = 0.034
     video = video_folder
-    input_dir = '/mnt/2To/jupyter_data/PdS_LC/program/all_vids/'+video+'/'
+    input_dir = './videos/'+video+'/'
     tmp_outdir = './working_dir/'
-    output_dir = input_dir.replace('all_vids', 'all_results')
+    output_dir = input_dir.replace('all_vids', 'trajectories')
     # Create debug dir if debug is True
-    debug_dir = f'/mnt/2To/jupyter_data/PdS_LC/program/automated-paper-tracking/debug/{video}/' if config['debug'] else None
+    debug_dir = f'./debug/{video}/' if config['debug'] else None
     os.makedirs(debug_dir, exist_ok=True) if config['debug'] else None
     print(f"DEBUG is {debug_dir}") if config['debug'] else None
 
