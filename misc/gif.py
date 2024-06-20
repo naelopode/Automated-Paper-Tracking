@@ -8,8 +8,9 @@ import imageio
 from matplotlib import transforms
 from PIL import Image, ImageOps
 from tqdm import tqdm
-video = "vid220"
-output_dir = f'../trajectories/{video}'
+video = "vid220" #Name of the video
+output_dir = f'./trajectories/{video}' #Where .txt files should be
+os.makedirs('./working_dir/gifs', exist_ok=True) #Create dir for gif creation
 files = sorted(glob.glob(os.path.join(output_dir, '*.txt')))
 print(f"processing files from {files}")
 missing = []
@@ -68,7 +69,7 @@ def update_plots(offset1=0, offset2=0, offset3=0, end_idx=len(dataframes[0]), sa
     ax3.set_ylabel('Z [m]')
     ax3.set_title('Axis - Z')
     
-    # Plot alpha
+    # Plot Psi
     ax4 = fig.add_subplot(gs[1, 0])
     for color in ['r', 'g', 'b']:
         subset = df_all[df_all['color'] == color]
@@ -76,7 +77,7 @@ def update_plots(offset1=0, offset2=0, offset3=0, end_idx=len(dataframes[0]), sa
     ax4.set_ylabel('Psi [Degree]')
     ax4.set_title('Axis - Psi')
     
-    # Plot beta
+    # Plot Theta
     ax5 = fig.add_subplot(gs[1, 1])
     for color in ['r', 'g', 'b']:
         subset = df_all[df_all['color'] == color]
@@ -84,7 +85,7 @@ def update_plots(offset1=0, offset2=0, offset3=0, end_idx=len(dataframes[0]), sa
     ax5.set_ylabel('Theta [Degree]')
     ax5.set_title('Axis - Theta')
     
-    # Plot gamma
+    # Plot Phi
     ax6 = fig.add_subplot(gs[1, 2])
     for color in ['r', 'g', 'b']:
         subset = df_all[df_all['color'] == color]
@@ -95,7 +96,7 @@ def update_plots(offset1=0, offset2=0, offset3=0, end_idx=len(dataframes[0]), sa
     # Plot 3D scatter
     for i, color, image in zip(range(3), ['red','green','blue'], df_all[df_all['adjusted_index']==end_idx]['filename_debug']): #end_idx
         ax = fig.add_subplot(gs[2, i])
-        img = rotate_image(f"/mnt/2To/jupyter_data/PdS_LC/program/automated-paper-tracking/debug/{video}/{image}", color)
+        img = rotate_image(f"./debug/{video}/{image}", color)
         ax.imshow(img)
         
         ax.axis('off')
@@ -109,7 +110,7 @@ def update_plots(offset1=0, offset2=0, offset3=0, end_idx=len(dataframes[0]), sa
 frames = []
 # Generate frames
 for i in tqdm(range(RANGE[0], RANGE[1])):
-    frame_path = f"/mnt/2To/jupyter_data/PdS_LC/program/automated-paper-tracking/working_dir/gifs/frame_{i:04d}.png"
+    frame_path = f"./working_dir/gifs/frame_{i:04d}.png"
     update_plots(offset1=DEFAULT_OFFSETS[0], offset2=DEFAULT_OFFSETS[1], offset3=DEFAULT_OFFSETS[2], end_idx=i, save_path=frame_path)
     frames.append(frame_path)
 
