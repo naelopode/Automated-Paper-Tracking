@@ -9,6 +9,9 @@ Student : Naël Dillenbourg
 ## Goal
 Track accurately 6 Degrees of freedom of a falling paper and be able to reproduce the experiment hundreds of times to find global patterns. Attempt to extract meaningful data from the experiments.
 
+## Report
+A report detailing the project, methods, major steps, setup, results and discussions is [available](report.pdf) in the repo.
+
 ## Setup
 The experiment make use of:
 - An Arduino to command a stepper motor to drop and grab a paper.
@@ -36,10 +39,10 @@ We extract each frame from the videos, compute the offset between each video wit
 <pre>
 .
 └── automated-paper-tracking/
-    ├── [report.pdf](/report.pdf)
-    ├── [main.py](/main.pd) 
-    ├── [plot.ipynb](/plot.pdf)
-    ├── [experiment.py](/experiment.py)
+    ├── report.pdf
+    ├── main.py 
+    ├── plot.ipynb
+    ├── experiment.py
     ├── README.md
     ├── video2traj.py
     ├── preprocessing.py
@@ -61,13 +64,13 @@ We extract each frame from the videos, compute the offset between each video wit
     │   │   └── ...
     │   └── ...
     ├── calibration/
-    │   ├── [calibration.ipynb](calibration/calibration.ipynb)
+    │   ├── calibration.ipynb
     │   ├── cam1_26K.pkl
     │   ├── cam2_26K.pkl
     │   └── cam3_26K.pkl
     └── misc/
-        ├── [PDFs (Checkboard, Apriltags...)](/misc)
-        └── [gif.py](misc/gif.py)
+        ├── PDFs (Checkboard, Apriltags...)
+        └── gif.py
 </pre>
 
 Folders videos, trajectories and working_dir should be user generated.
