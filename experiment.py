@@ -7,11 +7,11 @@ import os
 
     
 
-retry = True
-test = False
+retry = True #Redownload last file
+test = False #Only test claws of the grabber
 ARDUINO_PORT = '/dev/ttyACM0'
 
-cam1 = '172.20.133.51'
+cam1 = '172.20.133.51' #This information depends on the serial number of the gopro, check documentation.
 cam2 = '172.20.137.51'
 cam3 = '172.26.141.51'
 cams = [cam1, cam2, cam3]
@@ -27,8 +27,6 @@ def move_servo(angle):
 def drop():
     global pin9
     board=pyfirmata.Arduino(ARDUINO_PORT)
-    #iter8 = pyfirmata.util.Iterator(board)
-    #iter8.start()
     pin9 = board.get_pin('d:9:s')
 
     for i in range(ANGLE_GRAB, ANGLE_REST, -1):
@@ -39,8 +37,6 @@ def drop():
 def move_range():
     global pin9
     board=pyfirmata.Arduino(ARDUINO_PORT)
-    #iter8 = pyfirmata.util.Iterator(board)
-    #iter8.start()
     pin9 = board.get_pin('d:9:s')
 
 
@@ -56,8 +52,6 @@ def move_range():
 def grab():
     global pin9
     board=pyfirmata.Arduino(ARDUINO_PORT)
-    #iter8 = pyfirmata.util.Iterator(board)
-    #iter8.start()
     pin9 = board.get_pin('d:9:s')
 
 
@@ -66,7 +60,7 @@ def grab():
         move_servo(i)
         sleep(0.0015)
     sleep(4)
-
+#Enable communication to Gopro
 def cams_enable(cams):
     for i in range(len(cams)):
         print(f'currently at {i}')
@@ -79,7 +73,7 @@ def cams_enable(cams):
             i = i-1
             print('The request timed out')
     return True
-
+#Disable communication to Gopro
 def cams_disable(cams):
     for i in range(len(cams)):
         print(f'currently at {i}')
@@ -92,7 +86,7 @@ def cams_disable(cams):
             i = i-1
             print('The request timed out')
     return True
-
+#Send recording command
 def cams_start_recording(cams):
     for i in range(len(cams)):
         print(f'currently at {i}')
@@ -105,7 +99,7 @@ def cams_start_recording(cams):
             i=i-1
             print('The request timed out')
     return True
-
+#Send stop recording command
 def cams_stop_recording(cams):
     for i in range(len(cams)):
         print(f'currently at {i}')
@@ -118,7 +112,7 @@ def cams_stop_recording(cams):
             i = i-1
             print('The request timed out')
     return True
-
+#Obtain list of files recorded (Simpler implementation with GoPro 11, but this works also with GoPro 10)
 def get_files(cams):
     files = ['','','']
     times = ['', '', '']
@@ -127,7 +121,6 @@ def get_files(cams):
         try:
             print(f"reaching {cam}")
             r = requests.get(f"http://{cam}:8080/gopro/media/list", timeout = 2)
-            #print(r.json())
             data = r.json()   
             list = []
             cre = []
@@ -137,8 +130,6 @@ def get_files(cams):
                     cre.append(al['cre'])
             list.sort()
             cre.sort()
-            #print(cre)
-            #print(list[-1])
             files[i] = list[-1]
             times[i] = cre[-1]
         except requests.exceptions.Timeout:
@@ -146,7 +137,7 @@ def get_files(cams):
             print('The request timed out')
     print(times)
     return files
-
+#Download last files
 def download_files(cams, files, X):
     if not os.path.exists(f'/home/nael/recordings/vid{X}'):
         os.mkdir(f'/home/nael/recordings/vid{X}')
@@ -168,7 +159,7 @@ def download_files(cams, files, X):
             i = i-1
             print('The request timed out')
     return True
-
+#Function defining what to do and sleep times for experiment
 def record_download(cams, X):
     cams_disable(cams)
     sleep(1)
@@ -176,7 +167,7 @@ def record_download(cams, X):
     sleep(1)
     cams_start_recording(cams)
     drop()
-    sleep(3)
+    sleep(3)#Duration of the video (more like 8 seconds)
     cams_stop_recording(cams)
     sleep(1)
     files = get_files(cams)
@@ -206,27 +197,26 @@ if test:
     drop()
     exit()
 if retry:
-    X = 100
-    path = f'/home/nael/recordings/vid{X}'
+    X = 0
+    path = f'./trajectories/vid{X}'
     while os.path.exists(path):
         print('file exist, to next path')
         X = X+1
-        path = f'/home/nael/recordings/vid{X}'
+        path = f'/trajectories/vid{X}'
     X=X-1
 
     cams_enable(cams)
     redownload(cams, X)
     cams_disable(cams)
 else:
-    X = 100
-    path = f'/home/nael/recordings/vid{X}'
+    X = 0
+    path = f'/trajectories/vid{X}'
 
     while os.path.exists(path):
         print('file exist, to next path')
-        X = X+1
-        path = f'/home/nael/recordings/vid{X}'
+        X = X+1 #Give new name to video
+        path = f'/trajectories/vid{X}'
 
-    grab()
+    grab() #Grab paper that was placed by user
     sleep(1)
-    record_download(cams, X)
-
+    record_download(cams, X) #Start routine

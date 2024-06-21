@@ -26,7 +26,7 @@ def compute_reprojection_error(object_points, image_points, rvec, tvec, camera_m
     error = np.linalg.norm(image_points - projected_points, axis=1).mean()
     return error
 
-def getAprilTagsInfo(images_folder, calib_param, tag_size, debug_dir=None):
+def getAprilTagsInfo(images_folder, calib_param, tag_size, debug_dir=None): #Trajectory function skeleton taken from vedio2traject.py github project (as mentionned in the repo)
     '''
     Return a dictionary
 
@@ -55,21 +55,12 @@ def getAprilTagsInfo(images_folder, calib_param, tag_size, debug_dir=None):
     # Get images from folder
     files = sorted(glob.glob(os.path.join(images_folder, '*.jpg')))
     file_num = len(files)
-    # Center: k*2, Pose_R: 3*3*k, Pose_t: 3*1*k 
     tag_info_dict = {}
     for image in tqdm(files):
         img_name = os.path.basename(image)
         # Initialize as empty list
         tag_info_dict[img_name] = []
         img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
-        """  OLD METHOD
-        camera_params = (
-            camera_matrix[0, 0], camera_matrix[1, 1], camera_matrix[0, 2], camera_matrix[1, 2])
-        tags = at_detector.detect(
-            img, estimate_tag_pose=True, camera_params=camera_params, tag_size=tag_size)
-        tag_info_dict[img_name] = tags        
-        """
-        dist_coeffs = np.zeros((4, 1))  # Assuming no lens distortion
 
         # Detect AprilTags without pose estimation
         tags = at_detector.detect(img)
@@ -123,10 +114,10 @@ def getAprilTagsInfo(images_folder, calib_param, tag_size, debug_dir=None):
                         best_rvec, best_tvec = rvec, tvec
             rvec, tvec = best_rvec, best_tvec
             R = 0
-            if success:
+            if success: #Calculate rotation vector, this does have several soltion, Rodrigues picks one
                 R, _ = cv2.Rodrigues(rvec)
             if success:
-                tag_tmp = {
+                tag_tmp = { #Informations we wish to keep
                     'pose_R': R,
                     'pose_t': tvec,
                     'tag_id': tag.tag_id,
@@ -227,60 +218,39 @@ def dump2txt(tag_info_dict, filename, figpath=None):
         state = 0
         center_x = None
         center_y = None
-        #ref_center_x = None
-        #ref_center_y = None
         return_tag = 0
         ref_taken=False
-        #rvec0 = None
-        #rvec1 = None
-        #rvec2 = None
         error = None
-        #errors = None
-        #corners = None
         for tag in tags:
             if not tag: #check if dict is empty
                 continue
-            #if not tag['inlier']:
-            #    continue
             if tag['tag_id'] == 0:
                 ref_R = tag['pose_R']
                 ref_t = tag['pose_t']
                 nb_ref_tag +=1
-                #ref_center_x = tag['center'][0]
-                #ref_center_y = tag['center'][1]
-                ref_taken = True
+                ref_taken = True #We can make it so it does not need to take the reference frame at every frame in case the tag goes in from of the reference tag, but this does not happen often.
             if tag['tag_id'] == 1:
                 goal_R = tag['pose_R']
                 goal_t = tag['pose_t'] 
                 center_x = tag['center'][0]
                 center_y = tag['center'][1]
-                #rvec0=tag['rvec'][0]
-                #rvec1=tag['rvec'][1]
-                #rvec2=tag['rvec'][2]
                 error = tag['error']
-                #corners = list(flatten(tag['corners']))
                 state = 1
                 return_tag = 0
                 nb_tag1 +=1
-                #errors = tag['errors']
             if tag['tag_id'] == 2:
                 goal_R = tag['pose_R']
                 goal_t = tag['pose_t']
                 center_x = tag['center'][0]
                 center_y = tag['center'][1]
-                #corners = list(flatten(tag['corners']))
-                #rvec0=tag['rvec'][0]
-                #rvec1=tag['rvec'][1]
-                #rvec2=tag['rvec'][2]
                 error = tag['error']
                 state = 1
                 return_tag = 1
                 nb_tag2 +=1
-                #errors = tag['errors']
             if (state == 1) and (ref_taken):
                 rel_pos = goal_t - ref_t
                 posB = ref_R.T @ rel_pos
-                poseBR = goal_R.T @ ref_R #ref_R.T @ goal_R
+                poseBR = goal_R.T @ ref_R # Calculation part (see report)
                 angle = Rotation.from_matrix(poseBR).as_euler(
                     'zyx', degrees=False)
                 tag_x = float(posB[0])
@@ -301,32 +271,29 @@ def dump2txt(tag_info_dict, filename, figpath=None):
                 df.loc[f, 'alpha'] = angle[0]
                 df.loc[f, 'beta'] = angle[1]
                 df.loc[f, 'gamma'] = angle[2]
-                df.loc[f, 'center_x'] = center_x#-ref_center_x
-                df.loc[f, 'center_y'] = center_y#-ref_center_y
-                #df.loc[f, 'rvec0'] = rvec0
-                #df.loc[f, 'rvec1'] = rvec1
-                #df.loc[f, 'rvec2'] = rvec2
+                df.loc[f, 'center_x'] = center_x
+                df.loc[f, 'center_y'] = center_y
                 df.loc[f, 'error'] = error
-                #df.loc[f, 'corners'] = corners
-                #for error_t, err in zip(error_types, errors):
-                #    df_error.loc[f, error_t] = err
-    #df_error.to_csv(filename_error, header=False, index=True, mode='w')
     df.to_csv(filename, header=False, index=True, mode='w')
 
     print(f"Detected {nb_ref_tag} times the reference tag")
     print(f"Detected {nb_tag1} times the first tag")
     print(f"Detected {nb_tag2} times the second tag")
 
-    # Visualize trajectory
-    #visualize_df(df, figpath)
 
+"""
+Visualization commands
 
+Here, we have some function to plot, 
+they may be added at the end of main.py 
+to automatically plot the results but plot.ipynb 
+allows to check offsets before plotting.
+"""
 def visualize_xyz_df(df, ax, color):
     x = df['x'].to_numpy()
     y = df['y'].to_numpy()
     z = df['z'].to_numpy()
     ax.set_title('3D Representation')
-    #ax.scatter3D(x[0],y[0],z[0], marker = 'o', color = color)
     for i in range(x.shape[0]):
         try:
             ax.scatter3D(x[i],y[i],z[i], marker = "x", color = color)
@@ -353,11 +320,8 @@ def visualize_rvec_df(df, axes, color):
     axes[0].set_ylabel('rvec0')
     axes[1].set_xlabel('Step')
     axes[1].set_ylabel('rvec1')
-    #axes[2].axis('auto')
-    #axes[2].set_ylim(bottom = -0.3, top = 0.3)
     axes[2].set_xlabel('Step')
     axes[2].set_ylabel('rvec2')
-    #axes[2].set_autoscale_on()
     return axes
 
 
@@ -371,14 +335,12 @@ def visualize_error_df(df, ax, color):
             pass
     ax.set_xlabel('Step')
     ax.set_ylabel('Error')
-    #ax.set_ylim(bottom=-0.1, top=0.1)
     return ax
 
 def visualize_angles_df(df, axes, color):
     alpha = df['alpha'].to_numpy()
     beta = df['beta'].to_numpy()
     gamma = df['gamma'].to_numpy()
-    #print(f"gamma max min : {np.max(gamma)}, {np.min(gamma)}")
     gamma_max = 0
     gamma_min = 0
     for i in range(alpha.shape[0]):
@@ -399,7 +361,6 @@ def visualize_angles_df(df, axes, color):
     axes[1].set_ylabel('Beta')
     axes[2].set_xlabel('Step')
     axes[2].set_ylabel('Gamma')
-    #print(f'gamma_min : {gamma_min}, gamma_ma : {gamma_max}')
     
     return axes
     
@@ -421,21 +382,16 @@ def visualize_xyz2_df(df, axes, color):
     axes[0].set_ylabel('x')
     axes[1].set_xlabel('Step')
     axes[1].set_ylabel('y')
-    #axes[2].axis('auto')
-    #axes[2].set_ylim(bottom = -0.3, top = 0.3)
     axes[2].set_xlabel('Step')
     axes[2].set_ylabel('z')
     axes[3].set_xlabel('Step')
     axes[3].set_ylabel('Error')
 
-    #axes[2].set_autoscale_on()
     return axes
 
 def visualize_center_df(df, axes, color):
     center_x = df['center_x'].to_numpy()
     center_y = df['center_y'].to_numpy()
-    gamma_max = 0
-    gamma_min = 0
     for i in range(center_x.shape[0]):
         try:
             axes[0].scatter(i, center_x[i], marker = "x", color = color)
@@ -446,7 +402,6 @@ def visualize_center_df(df, axes, color):
     axes[0].set_ylabel('X')
     axes[1].set_xlabel('Step')
     axes[1].set_ylabel('Y')
-    #print(f'gamma_min : {gamma_min}, gamma_ma : {gamma_max}')
     
     return axes
 

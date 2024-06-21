@@ -23,29 +23,27 @@ def getConfig():
         'dumpInfoDictPickle': False,        ## load frames2taginfo
         'dumpTxt': True,                    ## dump (x, y, theta)
         'dumpVisualization': True,          ## Draw the trajectory
-        'skip' : False,                     ## Skip video to frames
+        'skip' : True,                     ## Skip video to frames
         'log' : True,                       ## Activate logs
-        'debug': True,                      ## Export all frames with tag position
+        'debug': False,                      ## Export all frames with tag position
     }
     return config
 
-def convert_string_to_list(value):
+def convert_string_to_list(value): #Convert string list to python list
     try:
-        # First, check if the value is not empty or NaN
         if pd.isna(value) or value == '':
-            return np.nan  # or you can return [] for an empty list
-        # Use literal_eval to try to parse the list
+            return np.nan  
         result = ast.literal_eval(value)
         if isinstance(result, list):
-            return np.array(result)  # or just return result if a list is preferred
+            return np.array(result) 
         else:
-            return result  # In case the evaluated result is not a list
+            return result  
     except:
-        # In case of any error during parsing, handle it (return the original or a default value)
         return value
 
 def extract_data(video_folder):
     config = getConfig()
+    #Loading the camera pickles deformation matrix ! To be created with calibration.ipynb
     with open('./calibration/cam1_26K.pkl', 'rb') as f:
         calib_param_cam1 = pickle.load(f)
     with open('./calibration/cam2_26K.pkl', 'rb') as f:
@@ -53,16 +51,15 @@ def extract_data(video_folder):
     with open('./calibration/cam3_26K.pkl', 'rb') as f:
         calib_param_cam3 = pickle.load(f)
 
-    tag_size = 0.034
+    tag_size = 0.034 #Tag size, for both reference and falling apepr
     video = video_folder
     input_dir = './videos/'+video+'/'
     tmp_outdir = './working_dir/'
-    output_dir = input_dir.replace('all_vids', 'trajectories')
+    output_dir = input_dir.replace('videos', 'trajectories')
     # Create debug dir if debug is True
     debug_dir = f'./debug/{video}/' if config['debug'] else None
     os.makedirs(debug_dir, exist_ok=True) if config['debug'] else None
     print(f"DEBUG is {debug_dir}") if config['debug'] else None
-
 
     dirs = [tmp_outdir, input_dir, output_dir]
     for dir in dirs:
@@ -84,9 +81,8 @@ def extract_data(video_folder):
     print(f"Files to be treated are {file_paths}") if config['log'] else None
 
     # Extracting frames:
-    print(f"dir is {file_path}")
     offsets = dump_to_frames(file_paths, skip=config['skip'], log = config['log'])
-
+    print(f"Offsets should be {offsets}") #Printed calculated offsets based on timestamps. May not be exact due to internal clock shifting.
     for v in file_paths:
         if not os.path.isfile(v):
             print(f"Check file {v} locations. This file does not exists")
@@ -113,7 +109,7 @@ def extract_data(video_folder):
         if config['loadInfoDictFromPickle']: # Load results and carry on dataframe building if needed
             with open(output_dir + v_basename+'_dict_info.pkl', 'rb') as f:
                 tag_info_dict = pickle.load(f)
-        elif config['newDetect']: # Creating a new dict
+        elif config['newDetect']: # Creating a new dict with detection
             print("Starting newDetect")
             [tag_info_dict, msg] = getAprilTagsInfo(outdir, calib_param, tag_size, debug_dir)
             if config['dumpInfoDictPickle']:
@@ -135,9 +131,8 @@ def extract_data(video_folder):
         if config['newDetect']:
             del tag_info_dict #Delete this large variable.
 
-    print("Finished running, you can visualize the data now")
+    print("Finished running, you can visualize the data now using plot.ipynb")
 
 if __name__ == "__main__":    
     video_folder = sys.argv[1]
-    print(f"VIDEO FOLDER IS {video_folder}")
     extract_data(video_folder)
