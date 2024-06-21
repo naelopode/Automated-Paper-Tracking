@@ -7,7 +7,7 @@ Supervisor : Nana Obayashi
 Student : Naël Dillenbourg
 
 ## Goal
-Track accurately 6 Degrees of freedom of a falling paper and be able to reproduce the experiment hundreds of times to find global patterns. Attempt to extract meaningful data from the experiments.
+Create an experiment setup that can track accurately 6 Degrees of freedom of a falling paper and be able to reproduce the experiment a large number of times to find global patterns. 
 
 ## Report
 A report detailing the project, methods, major steps, setup, results and discussions is [available](report.pdf) in the repo.
@@ -18,7 +18,7 @@ The experiment make use of:
 - A [paper](misc) (with two different april tags to track the trajectory).
 - A [reference tag](misc/reference_tag.pdf), to compute a relative distance.
 - 3 GoPro Cameras (More is better but more computation per experiment).
-- A screen (phone or computer) using QR precision time to sync internal clocks of the cameras.
+- A screen (phone or computer) using [QR precision time](https://gopro.github.io/labs/control/precisiontime/) to sync internal clocks of the cameras.
 
 ![Setup](images/setup.png)
 ### More information on the Setup
@@ -26,7 +26,7 @@ The experiment make use of:
 - Each cameras needs to have it's deformation matrix calculated with a Checkerboard.
 - We use a 3.4cm tags from AprilTags, this can be modified by using the hardcoded variable: 'tag_size'
 ## Experiment pipeline
-About every 5 to 10 experiment, it's advised to sync the internal clock to avoid any offset between the cameras.
+About every 5 to 10 experiment, it's advised to sync the internal clock to avoid any offset between the cameras if you use the calculated offsets. Offets can be found also by hand using [plot.ipynb](plot.ipynb).
 The experiment program controlling the Arduino and camera can the be enabled. The grabber allows some time to be reloaded with a paper. The cameras are the enabled and start recording. The paper is dropped. Finally, the cameras stop recording and the files are downloaded 
 ![Experiment pipeline](images/exp_pipeline.png)
 
@@ -79,11 +79,11 @@ You can install the necessary conda environment by using 'conda env create -f en
 ### Steps
 1. Calibrate each cameras using provided checkboard.
     1. Record videos of the [checkboad](/misc/camera-calibration-checker-board_9x7.pdf) with various angles and from various distances with each camera you are going to use.
-    2. Generate the deformation matrices using calibration.ipynb. This generates the necessary pickle files and should be done for every calibration recorded at point a.
+    2. Generate the deformation matrices using [calibration.ipynb](calibration/calibration.ipynb). This generates the necessary pickle files and should be done for every calibration recorded at point a.
 2. Setup the experiment.
     1. Build the experiment using as many cameras as you want, a servo motor to drop the paper. Be sure to film as much of the falling paper trajectory but leave some redundancy in the trajectory region filmed.
     2. Sync the camera using [GoPro Labs](https://gopro.github.io/labs/control/precisiontime/). GoPros need to be lab enabled.
-    3. Run the experiment. Place a paper in the gripper and run the code experiment.py. The files will be automatically downloaded and renamed locally afterwards.
+    3. Run the experiment. Place a paper in the gripper and run the code [experiment.py](experiment.py). The files will be automatically downloaded and renamed locally afterwards.
 3. Run the data analysis pipeline.
     1. Run "python main.py video_id" where video_id replace the name of the video such as 'vid001'
     2. Visualize the data using plot.ipynb
